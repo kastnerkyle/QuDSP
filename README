@@ -1,0 +1,22 @@
+This code is used to characterize music content using Gaussian Mixture Model (GMM) analysis
+
+To run, type 
+./main <some_mp3_or_wav>
+You can also point it to other mp3 files or wav files.
+
+REQUIREMENTS:
+Requires the python-dev, python-numpy, python-scipy, python-matplotlib, libmpg123-dev, libsndfile-dev, and libfftw3-dev packages from ubuntu
+
+RECOMMENDED
+python-pip
+
+Python packages
+    sklearn
+
+To get these packages, do 
+sudo apt-get install python-dev (or numpy, etc.)
+sudo pip sklearn
+ 
+BUILDING: 
+Just type make
+
