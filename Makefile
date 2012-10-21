@@ -1,11 +1,13 @@
 CXX=g++
-NUMPY=/usr/lib/pymodules/python2.7/numpy/core/include/numpy/
+NUMPY=/usr/share/pyshared/numpy/core/include/numpy
+#NUMPY=/usr/lib/pymodules/python2.7/numpy/core/include/numpy/
 CXXFLAGS=-Ofast -Wall -std=c++0x -march=native -I$(NUMPY) 
-LIBS=-lmpg123 -lfftw3 -ldl -lpython2.7 -lsndfile
+LIBS=-lmpg123 -lfftw3 -ldl -lpython2.7 -lsndfile -lconfig++
 
 EXEC=main
 OBJECTS=\
 	main.o \
+        Configurator.o \
 	DataCollector.o \
 	MuBlock.o \
 	Process.o \
@@ -31,4 +33,7 @@ Process.o: Process.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<	
 
 PythonAnalyzer.o: PythonAnalyzer.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<	
+
+Configurator.o: Configurator.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<	

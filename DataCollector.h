@@ -1,6 +1,5 @@
 #ifndef _DATACOLLECTOR_H_
 #define _DATACOLLECTOR_H_
-
 #include <assert.h>
 #include <mpg123.h>
 #include <sndfile.h>
@@ -19,6 +18,6 @@ class DataCollector {
     public:
         DataCollector();
         ~DataCollector();
-        MuBlock* Decode(std::string fname);
+        MuBlock* decode(std::string fname);
 };
 #endif

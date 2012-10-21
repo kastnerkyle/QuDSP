@@ -20,7 +20,7 @@ DataCollector::~DataCollector() {
 }
 
 //Dirty hack - if filename ends with .mp3, run libmpg123, else use libsndfile
-MuBlock* DataCollector::Decode(std::string fname) {
+MuBlock* DataCollector::decode(std::string fname) {
     if (fname.substr(fname.find_last_of(".") + 1) == "mp3") {
         this->decodeMP3FromFile(fname);
     } else {
@@ -40,13 +40,13 @@ void DataCollector::decodeMP3FromFile(std::string fname) {
     int err = MPG123_OK;
     char* file = (char *)fname.c_str(); 
 
-    std::cout << "Input file: " << file << "\n";
+    std::cout << "Input file: " << file << std::endl;
  
     //This whole method basically follows example code for mpg123. Some of the
     //  error checking might be excessive, but why the heck not?
     err = mpg123_init();    
     if (err != MPG123_OK || (mp_mh = mpg123_new(NULL, &err)) == NULL) {
-        std::cerr << "Basic setup goes wrong: " << mpg123_plain_strerror(err) << "\n";
+        std::cerr << "Basic setup goes wrong: " << mpg123_plain_strerror(err) << std::endl;
         mpg123Cleanup();
         exit(99);
     }
@@ -54,7 +54,7 @@ void DataCollector::decodeMP3FromFile(std::string fname) {
     int encoding;
     if (mpg123_open(mp_mh, file) != MPG123_OK || mpg123_getformat(mp_mh, &m_block.wav.i64_samplerate, &m_block.wav.n_channels, &encoding) != MPG123_OK ) {
         std::cerr << "Trouble with mpg123: " << mpg123_strerror(mp_mh) << 
-"\n";
+std::endl;
         exit(99);
     }
     
@@ -63,12 +63,12 @@ void DataCollector::decodeMP3FromFile(std::string fname) {
 
     /*
     encoding != MPG123_ENC_SIGNED_16 ?
-                std::cout << "Encoding is float.\n":
-                std::cout << "Encoding is 16 bit signed.\n";
+                std::cout << "Encoding is float." << std::endl <<
+                std::cout << "Encoding is 16 bit signed." << std::endl;
         
     std::cout << "WAV will have " << m_block.wav.n_channels
               << " n_channels and " << m_block.wav.i64_samplerate
-              << " Hz i64_samplerate.\n";
+              << " Hz i64_samplerate." << std::endl;
     */
 
     mpg123_scan(mp_mh);
@@ -76,7 +76,7 @@ void DataCollector::decodeMP3FromFile(std::string fname) {
     //mpg123 returns an off_t, which represents bytes, so we need to convert to units of samples, which are short (16 bit)
     size_t size = (size_t)mpg123_length(mp_mh)*sizeof(short)/sizeof(unsigned char);
     
-    //std::cout << size << " samples to read.\n";
+    //std::cout << size << " samples to read." << std::endl;
     //Store results in short[], because each sample is 16bit
     size_t done = 0;
     size_t total = size*m_block.wav.n_channels;
@@ -85,8 +85,8 @@ void DataCollector::decodeMP3FromFile(std::string fname) {
     m_block.wav.i64_wavlen = size;
     /*
     err == MPG123_OK ?
-           std::cout << m_block.wav.i64_wavlen << " samples in decoded array.\n":
-           std::cerr << "MPG123 read error occured!\n";
+           std::cout << m_block.wav.i64_wavlen << " samples in decoded array." << std::endl <<
+           std::cerr << "MPG123 read error occured! << std::endl";
     */
 
     mpg123Cleanup();
@@ -94,9 +94,8 @@ void DataCollector::decodeMP3FromFile(std::string fname) {
 
 //Wav decode
 void DataCollector::decodeWAVFromFile(std::string fname) {
-
     //Once again, this method prety much uses the standard interface to libsndfile
-    std::cout << "Input file: " << fname << "\n";
+    std::cout << "Input file: " << fname << std::endl;
 
     SF_INFO info;
     info.format = 0;
@@ -104,7 +103,7 @@ void DataCollector::decodeWAVFromFile(std::string fname) {
 
     wav_fp = sf_open(fname.c_str(), SFM_READ, &info);
     if (!wav_fp) {
-        std::cout << sf_strerror(wav_fp) << "\n.";
+        std::cout << sf_strerror(wav_fp) << std::endl;
     }
    
     //Use short values, because wav samples are 16 bit 

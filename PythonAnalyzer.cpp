@@ -94,8 +94,8 @@ PythonAnalyzer::~PythonAnalyzer() {
 //  main.cpp
 std::string PythonAnalyzer::Run(std::string python_f) {
     std::stringstream ss;
-    mp_python_f = PyFile_FromString(&python_f[0], "r");
-    PyRun_SimpleFile(PyFile_AsFile(mp_python_f), &python_f[0]);
-    ss << "PythonAnalyzer " << python_f << " has completed.\n";
+    mp_python_f = PyFile_FromString((char *)python_f.c_str(), "r");
+    PyRun_SimpleFile(PyFile_AsFile(mp_python_f), (char *)python_f.c_str());
+    ss << "PythonAnalyzer " << python_f << " has completed." << std::endl;
     return ss.str();
 }

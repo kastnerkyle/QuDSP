@@ -30,15 +30,14 @@ print channels
 print samplerate
 
 #Use GMM to fit data, will need to look at VBGMM and DPGMM as well
-n_gauss = 3
+n_gauss = 10
 g = mixture.GMM(n_components=n_gauss)
 g.fit(bfccdata[:,:8])
 
 #Store results in the results directory, as pickled object
-songresults = '../Results/'+songname
+songresults = "Results/"+"".join(songname.split(" "))
 if not os.path.exists(songresults):
-    os.mkdir(songresults)
-f = open(songresults+'/GMM.pickle', 'w')
+    os.popen("mkdir -p "+songresults)
+f = open(songresults+'/DPGMM.pickle', 'w')
 pickle.dump(g, f)
 f.close()
-

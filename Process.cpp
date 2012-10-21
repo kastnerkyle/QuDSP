@@ -137,8 +137,9 @@ void Process::DCTFFTW(MuBlock* in) {
     }
    
     //Perform 2D DCT-II transform on warp filtered data  
-    fftw_r2r_kind fftkind = FFTW_REDFT10;
-    fftw_r2r_kind fftkind2 = FFTW_REDFT10; 
+    fftw_r2r_kind fftkind = FFTW_REDFT01;
+    fftw_r2r_kind fftkind2 = FFTW_REDFT01; 
+    /*
     fftw_plan plan = fftw_plan_r2r_2d( in->bfcc.i64_bfcclen,
                                        in->bfcc.i64_bfccnum,
                                        in->bfcc.p_d_bfccdata,
@@ -146,7 +147,12 @@ void Process::DCTFFTW(MuBlock* in) {
                                        fftkind, 
                                        fftkind2, 
                                        FFTW_ESTIMATE );
-    
+    */
+    fftw_plan plan = fftw_plan_r2r_1d( in->bfcc.i64_bfcclen,
+                                       in->bfcc.p_d_bfccdata,
+                                       in->bfcc.p_d_bfccdata,
+                                       fftkind,
+                                       FFTW_ESTIMATE );                      
     fftw_execute(plan);
     fftw_destroy_plan(plan);
 }

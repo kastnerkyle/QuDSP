@@ -34,9 +34,9 @@ g = mixture.DPGMM()
 g.fit(bfccdata[:,:8])
 
 #Store results in the results directory, as pickled object
-songresults = '../Results/'+songname
+songresults = "Results/"+"".join(songname.split(" "))
 if not os.path.exists(songresults):
-    os.mkdir(songresults)
+    os.popen("mkdir -p "+songresults)
 f = open(songresults+'/DPGMM.pickle', 'w')
 pickle.dump(g, f)
 f.close()
