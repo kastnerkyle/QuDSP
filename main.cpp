@@ -37,7 +37,10 @@ int main(int argc, char* argv[]) {
     
     //Run Python blocks here...
     PythonAnalyzer test(mb);
-    
+   
+    /*
+    Config enabling/disabling section here - I will probably abstract this into the configurator eventually
+    */
     bool repeat = false;
     config.lookup("runRepeatedly", &repeat);
     
@@ -56,23 +59,26 @@ int main(int argc, char* argv[]) {
             std::string analyzer;
             ss << "analyzers.[" << pos << "]";
             loaded = config.lookup(ss.str(), &analyzer);
-            if(loaded) {
-                std::cout << "Now running analyzer " << analyzer << std::endl;
-                ss.str("");
-                ss << "Analyzers/" << analyzer;
-                std::cout << test.Run(ss.str());
-                ss.str("");
-                pos++;
+            if(!loaded) {
+                std::cout << "End of analyzers list found at position " << pos << ", zero based indexing" << std::endl;
+                break;
             }
+            std::cout << "Now running analyzer " << analyzer << std::endl;
+            ss.str("");
+            ss << "Analyzers/" << analyzer;
+            std::cout << test.Run(ss.str());
+            ss.str("");
+            pos++;
         }
         while(loaded);
-        //std::cout << test.Run("Analyzers/GMM.py");
-        //std::cout << test.Run("Analyzers/DPGMM.py");
+        
+        if(repeat) {
+            pos = 0;
             std::cout << "Run finished, press enter to continue or press q to quit" << std::endl;
             if(std::getchar() == 'q') {
                 break;
             }
-            config.reloadConfig(); 
+        }
     }
     while(repeat);
     return 0;
