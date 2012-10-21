@@ -5,6 +5,7 @@
 #include "PythonAnalyzer.h"
 
 #include <iostream>
+#include <sstream>
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -20,7 +21,6 @@ int main(int argc, char* argv[]) {
     std::string f(argv[1]);
 
     Configurator config;
-    config.readConfig();
 
     //Initialize a MuBlock with data from fname
     DataCollector data;
@@ -38,7 +38,42 @@ int main(int argc, char* argv[]) {
     //Run Python blocks here...
     PythonAnalyzer test(mb);
     
-    std::cout << test.Run("Analyzers/GMM.py");
-    //std::cout << test.Run("Analyzers/DPGMM.py");
+    bool repeat = false;
+    config.lookup("runRepeatedly", &repeat);
+    
+    if(repeat) {
+        std::cout << "Running in repeat mode - python blocks will be run multiple times" << std::endl;
+    } else {
+        std::cout << "Repeat mode off. This means each selected python block will run once." << std::endl;
+    }
+
+    bool loaded = true;
+    unsigned int pos = 0;
+    std::stringstream ss;
+
+    do {
+        do {
+            std::string analyzer;
+            ss << "analyzers.[" << pos << "]";
+            loaded = config.lookup(ss.str(), &analyzer);
+            if(loaded) {
+                std::cout << "Now running analyzer " << analyzer << std::endl;
+                ss.str("");
+                ss << "Analyzers/" << analyzer;
+                std::cout << test.Run(ss.str());
+                ss.str("");
+                pos++;
+            }
+        }
+        while(loaded);
+        //std::cout << test.Run("Analyzers/GMM.py");
+        //std::cout << test.Run("Analyzers/DPGMM.py");
+            std::cout << "Run finished, press enter to continue or press q to quit" << std::endl;
+            if(std::getchar() == 'q') {
+                break;
+            }
+            config.reloadConfig(); 
+    }
+    while(repeat);
     return 0;
 }
