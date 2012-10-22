@@ -61,6 +61,7 @@ int main(int argc, char* argv[]) {
             loaded = config.lookup(ss.str(), &analyzer);
             if(!loaded) {
                 std::cout << "End of analyzers list found at position " << pos << ", zero based indexing" << std::endl;
+                ss.str("");
                 break;
             }
             std::cout << "Now running analyzer " << analyzer << std::endl;
@@ -73,8 +74,9 @@ int main(int argc, char* argv[]) {
         while(loaded);
         
         if(repeat) {
-            pos = 0;
             std::cout << "Run finished, press enter to continue or press q to quit" << std::endl;
+            pos = 0;
+            loaded = true;
             if(std::getchar() == 'q') {
                 break;
             }

@@ -21,5 +21,10 @@ psdlen, psdnum = np.shape(psd)
 ceplen, cepnum = np.shape(cepdata)
 bfcclen, bfccnum = np.shape(bfccdata)
 
-pylab.imshow(bfccdata[:,:8], origin="upper")
+print "FFT stats are length: " + `fftlen` + ", num: " + `fftnum`
+print "BFCC stats are length: " + `bfcclen` + ", num: " + `bfccnum`
+pylab.imshow(bfccdata, interpolation="nearest", origin="upper")	
+#pylab.imshow(psd[:50,::100], interpolation="nearest", origin="upper")
+#pylab.imshow(psd[:50,::100], origin="upper")
+pylab.colorbar()
 pylab.show() 

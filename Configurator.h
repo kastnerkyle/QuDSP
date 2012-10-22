@@ -8,8 +8,8 @@
 
 class Configurator {
    private:
-        libconfig::Config cfg;
-        std::string fname;
+        libconfig::Config m_cfg;
+        std::string m_fname;
         void checkConfig();
    public:
         Configurator();
@@ -17,7 +17,7 @@ class Configurator {
         void reloadConfig();
         template <typename label, typename quantifier>
         bool lookup(label key, quantifier* value) {
-            return cfg.lookupValue(key, reinterpret_cast< quantifier& >(*value));
+            return this->m_cfg.lookupValue(key, reinterpret_cast< quantifier& >(*value));
         };
 };
 #endif

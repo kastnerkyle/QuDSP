@@ -86,7 +86,6 @@ void Process::CepstrumFFTW(MuBlock* in, int64_t i64_ceplen) {
 //  values. Look up Mel Frequency Cepstral Coefficients, or Bark Frequency
 //  Cepsral Coefficients. Current implementation is Bark.
 void Process::DCTFFTW(MuBlock* in) {
-
     //Figure out edge of every Bark filter, and also truncate so that we do not
     //  attempt to access frequency bins > fs/2 (generally fs/2 will be 22050) 
     std::vector<int64_t> stopbins;
@@ -96,20 +95,20 @@ void Process::DCTFFTW(MuBlock* in) {
         if (temp < in->fft.i64_fftlen/2) {
             stopbins.push_back(temp);
             //Uncomment this line to see Bark stops
-            //printf("%ld\n", temp);
+            //std::cout << temp << std::endl;
         }
     }
 
     in->bfcc.i64_bfcclen = (int64_t)stopbins.size();
     in->bfcc.i64_bfccnum = in->fft.i64_fftnum;
-    in->bfcc.p_d_bfccdata = new double[in->bfcc.i64_bfcclen*in->bfcc.i64_bfccnum];
+    in->bfcc.p_d_bfccdata = (double *)fftw_malloc(sizeof(double)*in->bfcc.i64_bfcclen*in->bfcc.i64_bfccnum);
     //Zero out memory so we only need to populate barkcenter values.
     memset(in->bfcc.p_d_bfccdata, 0, sizeof(double)*in->bfcc.i64_bfcclen*in->bfcc.i64_bfccnum); 
     
     //Step through the array, computing a weighted sum of the PSD in each
     //  bark filter. This sum will be placed at the bark center frequency. 
     //  See ../References/musicir_paper.pdf, pg. 5, or 
-    //  Spectral Sudio Signal Processing, Appendix E: Bilinear Frequency Warping
+    //  Spectral Audio Signal Processing, Appendix E: Bilinear Frequency Warping
     for (size_t i=0; i<(size_t)in->bfcc.i64_bfccnum; i++) { 
         for (size_t j=2; j<(size_t)in->bfcc.i64_bfcclen; j++) {
             //Accumulator for this filter
@@ -135,29 +134,31 @@ void Process::DCTFFTW(MuBlock* in) {
             in->bfcc.p_d_bfccdata[i*in->bfcc.i64_bfcclen+(j-2)] = accum; 
         }
     }
-   
-    //Perform 2D DCT-II transform on warp filtered data  
-    fftw_r2r_kind fftkind = FFTW_REDFT01;
-    fftw_r2r_kind fftkind2 = FFTW_REDFT01; 
-    /*
-    fftw_plan plan = fftw_plan_r2r_2d( in->bfcc.i64_bfcclen,
-                                       in->bfcc.i64_bfccnum,
-                                       in->bfcc.p_d_bfccdata,
-                                       in->bfcc.p_d_bfccdata,
-                                       fftkind, 
-                                       fftkind2, 
-                                       FFTW_ESTIMATE );
-    */
-    fftw_plan plan = fftw_plan_r2r_1d( in->bfcc.i64_bfcclen,
-                                       in->bfcc.p_d_bfccdata,
-                                       in->bfcc.p_d_bfccdata,
-                                       fftkind,
-                                       FFTW_ESTIMATE );                      
+    
+    //Perform DCT-III transform on warp filtered data  
+    //Have to declare the type separately in order to get it to compile...
+    const fftw_r2r_kind fftkind = FFTW_REDFT01;
+    fftw_plan plan = fftw_plan_many_r2r( 1,
+                                         (int *)&(in->bfcc.i64_bfcclen),
+                                         in->bfcc.i64_bfccnum,
+                                         in->bfcc.p_d_bfccdata,
+                                         NULL,
+                                         in->bfcc.i64_bfccnum,
+                                         1,
+                                         in->bfcc.p_d_bfccdata,
+                                         NULL,
+                                         in->bfcc.i64_bfccnum,
+                                         1,
+                                         &fftkind,
+                                         FFTW_ESTIMATE );
+
     fftw_execute(plan);
     fftw_destroy_plan(plan);
 }
+
 Process::Process() {
 }
+
 Process::~Process() {
 }
 
