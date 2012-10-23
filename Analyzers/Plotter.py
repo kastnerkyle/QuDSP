@@ -23,8 +23,10 @@ bfcclen, bfccnum = np.shape(bfccdata)
 
 print "FFT stats are length: " + `fftlen` + ", num: " + `fftnum`
 print "BFCC stats are length: " + `bfcclen` + ", num: " + `bfccnum`
-pylab.imshow(bfccdata, interpolation="nearest", origin="upper")	
+pylab.imshow(bfccdata[:50,:50], interpolation="nearest", origin="upper")
+#pylab.imshow(psd.transpose(), interpolation="nearest", origin="upper")	
+#pylab.plot(wavdata[:5000])	
 #pylab.imshow(psd[:50,::100], interpolation="nearest", origin="upper")
 #pylab.imshow(psd[:50,::100], origin="upper")
-pylab.colorbar()
+#pylab.colorbar()
 pylab.show() 

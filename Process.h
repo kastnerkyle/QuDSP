@@ -7,6 +7,7 @@
 #include <fstream>
 #include <cstring>
 #include <vector>
+#include <Eigen/Core>
 #include "MuBlock.h"
 #include "Window.h"
 

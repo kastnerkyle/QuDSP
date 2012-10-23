@@ -1,7 +1,8 @@
 CXX=g++
 NUMPY=/usr/share/pyshared/numpy/core/include/numpy
+EIGEN=/home/kkastner/src/ProcessMusic/
 #NUMPY=/usr/lib/pymodules/python2.7/numpy/core/include/numpy/
-CXXFLAGS=-Ofast -Wall -std=c++0x -march=native -I$(NUMPY) 
+CXXFLAGS=-Ofast -Wall -std=c++0x -march=native -I$(NUMPY) -I$(EIGEN)
 LIBS=-lmpg123 -lfftw3 -ldl -lpython2.7 -lsndfile -lconfig++
 
 EXEC=main

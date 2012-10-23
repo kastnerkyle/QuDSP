@@ -102,46 +102,32 @@ void Process::DCTFFTW(MuBlock* in) {
     in->bfcc.i64_bfcclen = (int64_t)stopbins.size();
     in->bfcc.i64_bfccnum = in->fft.i64_fftnum;
     in->bfcc.p_d_bfccdata = (double *)fftw_malloc(sizeof(double)*in->bfcc.i64_bfcclen*in->bfcc.i64_bfccnum);
-    //Zero out memory so we only need to populate barkcenter values.
     memset(in->bfcc.p_d_bfccdata, 0, sizeof(double)*in->bfcc.i64_bfcclen*in->bfcc.i64_bfccnum); 
-    
+
+    //Switch to matrix version...  
     //Step through the array, computing a weighted sum of the PSD in each
     //  bark filter. This sum will be placed at the bark center frequency. 
     //  See ../References/musicir_paper.pdf, pg. 5, or 
     //  Spectral Audio Signal Processing, Appendix E: Bilinear Frequency Warping
-    for (size_t i=0; i<(size_t)in->bfcc.i64_bfccnum; i++) { 
-        for (size_t j=2; j<(size_t)in->bfcc.i64_bfcclen; j++) {
-            //Accumulator for this filter
-            long double accum = 0; 
-
-            //Size of the filter being computed
-            int64_t filtlen = stopbins[j]-stopbins[j-2];
-
-            for (size_t k=(size_t)stopbins[j-2]; k<(size_t)stopbins[j]; k++) {
-                double triangle_step = 1/(double)filtlen;
-                double mult = 1;
-                //Apply a triangle weight with maximum value of .5
-                //  Should be like [.1, .2, .3, .4, .5, .4, .3, .2, .1]
-                if ((k-stopbins[j-2])<(size_t)filtlen/2) {
-                    mult = (k-stopbins[j-2])*triangle_step;
-                } else {
-                    mult = 1-((k-stopbins[j-2])*triangle_step);
-                }
-                //Add value to accumulator for the current filter
-                accum += in->fft.p_d_psd[k]*mult;
-            }
-            //Set value at the filter center frequency to accum
-            in->bfcc.p_d_bfccdata[i*in->bfcc.i64_bfcclen+(j-2)] = accum; 
-        }
-    }
+     
+    //contruct a filterbank 
+    //so it is 1xfftlen * fftlenxBFCCfilters -> BFCCFiltersx1
+    Eigen::MatrixXd barks(in->fft.i64_fftlen, in->bfcc.i64_bfcclen);
     
+    //Default initializer is 0, had to add these lines for debugging
+    //memset(in->bfcc.p_d_bfccdata, 0, sizeof(double)*in->bfcc.i64_bfcclen*in->bfcc.i64_bfccnum); 
+    //barks.setOnes(in->fft.i64_fftlen, in->bfcc.i64_bfcclen);
+    
+    Eigen::Map<Eigen::MatrixXd > filt_in(in->fft.p_d_psd, in->fft.i64_fftnum, in->fft.i64_fftlen);
+    barks = filt_in * barks;    
+
     //Perform DCT-III transform on warp filtered data  
     //Have to declare the type separately in order to get it to compile...
     const fftw_r2r_kind fftkind = FFTW_REDFT01;
     fftw_plan plan = fftw_plan_many_r2r( 1,
                                          (int *)&(in->bfcc.i64_bfcclen),
                                          in->bfcc.i64_bfccnum,
-                                         in->bfcc.p_d_bfccdata,
+                                         barks.derived().data(),
                                          NULL,
                                          in->bfcc.i64_bfccnum,
                                          1,
