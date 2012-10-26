@@ -45,7 +45,7 @@ void Process::FFTW(MuBlock* in, int64_t i64_fftlen) {
     //Also populate PSD array for easy viewing of signal power.
     in->fft.p_d_psd = new double[in->fft.i64_fftnum*in->fft.i64_fftlen];
     for (size_t i=0; i<(in->fft.i64_fftnum*in->fft.i64_fftlen); i++) {
-        in->fft.p_d_psd[i] = log10(std::norm(in->fft.p_cpd_fftdata[i]));
+        in->fft.p_d_psd[i] = 20*log10(std::norm(in->fft.p_cpd_fftdata[i]));
     }
     fftw_destroy_plan(plan);
 }
